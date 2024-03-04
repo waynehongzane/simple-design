@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import Button, { ButtonSize, ButtonType } from './components/Button/button'
@@ -7,12 +8,33 @@ import MenuItem from './components/Menu/menuItem';
 import SubMenu from './components/Menu/subMenu';
 import Icon from './components/Icon/icon';
 import Input from './components/Input/input';
-import { AutoComplete,DataSourceType } from './components/AutoComplete/autoComplete';
+import Upload from './components/Upload/upload';
+import { AutoComplete, DataSourceType } from './components/AutoComplete/autoComplete';
+import { UploadFile } from './components/Upload/upload';
 
 library.add(fas)
-
 const App: React.FC = () => {
   const [value, setValue] = useState('')
+
+  // upLoad数据
+  // #region
+  const defaultFileList: UploadFile[] = [
+    { uid: '123', size: 1234, name: 'hello.md', status: 'uploading', percent: 30 },
+    { uid: '122', size: 1234, name: 'xyz.md', status: 'success', percent: 30 },
+    { uid: '121', size: 1234, name: 'eyiha.md', status: 'error', percent: 30 }
+  ]
+  const checkFileSize = (file: File) => {
+    if (Math.round(file.size / 1024) > 50) {
+      alert('file too big')
+      return false;
+    }
+    return true;
+  }
+  const filePromise = (file: File) => {
+    const newFile = new File([file], 'new_name.docx', { type: file.type })
+    return Promise.resolve(newFile)
+  }
+  // #endregion
 
   // AutoComplete的数据
   // #region
@@ -27,16 +49,16 @@ const App: React.FC = () => {
   }
   const lakers = ['bradley', 'pope', 'caruso', 'cook', 'cousins', 'james', 'AD', 'green', 'howard', 'kuzma', 'McGee', 'rando']
   const lakersWithNumber = [
-    {value: 'bradley', number: 11},
-    {value: 'pope', number: 1},
-    {value: 'caruso', number: 4},
-    {value: 'cook', number: 2},
-    {value: 'cousins', number: 15},
-    {value: 'james', number: 23},
-    {value: 'AD', number: 3},
-    {value: 'green', number: 14},
-    {value: 'howard', number: 39},
-    {value: 'kuzma', number: 0},
+    { value: 'bradley', number: 11 },
+    { value: 'pope', number: 1 },
+    { value: 'caruso', number: 4 },
+    { value: 'cook', number: 2 },
+    { value: 'cousins', number: 15 },
+    { value: 'james', number: 23 },
+    { value: 'AD', number: 3 },
+    { value: 'green', number: 14 },
+    { value: 'howard', number: 39 },
+    { value: 'kuzma', number: 0 },
   ]
   // const handleFetch = (query: string) => {
   //   return lakers.filter(name => name.includes(query)).map(name => ({value: name}))
@@ -49,7 +71,7 @@ const App: React.FC = () => {
       .then(res => res.json())
       .then(({ items }) => {
         console.log(items)
-        return items.slice(0, 10).map((item: any) => ({value: item.login, ...item}))
+        return items.slice(0, 10).map((item: any) => ({ value: item.login, ...item }))
       })
   }
 
@@ -68,25 +90,34 @@ const App: React.FC = () => {
     <div className="App">
       <header className="App-header">
         <p>上传组件</p>
-
+        <Upload
+          action="https://run.mocky.io/v3/deb58aba-c046-4519-9c91-9a7f1e36f4f3"
+          name="fileName"
+          multiple
+          drag
+        >
+          <Icon icon="upload" size="5x" theme="secondary" />
+          <br />
+          <p>Drag file over to upload</p>
+        </Upload>
 
         <p>自定义模板</p>
-        <AutoComplete style={{width: '300px'}}
-           fetchSuggestions={handleFetch} 
-           onSelect={(item)=>{console.log(item)}} 
-           renderOption={renderOption}
-           placeholder='autoComplete'>
+        <AutoComplete style={{ width: '300px' }}
+          fetchSuggestions={handleFetch}
+          onSelect={(item) => { console.log(item) }}
+          renderOption={renderOption}
+          placeholder='autoComplete'>
         </AutoComplete>
 
         <p>input组件</p>
-        <Input style={{width: '300px'}} value={value} onChange={(e) => setValue(e.target.value)}></Input>
-        <Input style={{width: '300px'}} placeholder='default input'></Input>
-        <Input style={{width: '300px'}} placeholder='disabled input' disabled></Input>
-        <Input style={{width: '300px'}} placeholder='input with icon' icon="search"></Input>
-        <Input style={{width: '300px'}} placeholder='large size' size='lg'></Input>
-        <Input style={{width: '300px'}} placeholder='small size' size='sm'></Input>
-        <Input style={{width: '300px'}} placeholder='predend text' prepend="https://"></Input>
-        <Input style={{width: '300px'}} placeholder='append text' append=".com"></Input>
+        <Input style={{ width: '300px' }} value={value} onChange={(e) => setValue(e.target.value)}></Input>
+        <Input style={{ width: '300px' }} placeholder='default input'></Input>
+        <Input style={{ width: '300px' }} placeholder='disabled input' disabled></Input>
+        <Input style={{ width: '300px' }} placeholder='input with icon' icon="search"></Input>
+        <Input style={{ width: '300px' }} placeholder='large size' size='lg'></Input>
+        <Input style={{ width: '300px' }} placeholder='small size' size='sm'></Input>
+        <Input style={{ width: '300px' }} placeholder='predend text' prepend="https://"></Input>
+        <Input style={{ width: '300px' }} placeholder='append text' append=".com"></Input>
 
         <Icon icon="arrow-down" theme='primary' size='10x'></Icon>
 
@@ -113,13 +144,13 @@ const App: React.FC = () => {
         </Menu>
 
         <Button>普通</Button>
-        <Button btnType={ButtonType.Primary} size={ButtonSize.Small}>primary small</Button>
-        <Button btnType={ButtonType.Primary} size={ButtonSize.Large}>primary large</Button>
-        <Button btnType={ButtonType.Default} size={ButtonSize.Small}>default small</Button>
-        <Button btnType={ButtonType.Default} size={ButtonSize.Large}>default large</Button>
-        <Button btnType={ButtonType.Danger} size={ButtonSize.Large}>danger large</Button>
-        <Button btnType={ButtonType.Link} href='http://www.baidu.com'>Hello</Button>
-        <Button btnType={ButtonType.Link} href='http://www.baidu.com' disabled>Hello</Button>
+        <Button btnType='primary' size='sm'>primary small</Button>
+        <Button btnType='primary' size='lg'>primary large</Button>
+        <Button btnType='default' size='sm'>default small</Button>
+        <Button btnType='default' size='lg'>default large</Button>
+        <Button btnType='danger' size='lg'>danger large</Button>
+        <Button btnType='link' href='http://www.baidu.com'>Hello</Button>
+        <Button btnType='link' href='http://www.baidu.com' disabled>Hello</Button>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
