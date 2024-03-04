@@ -11,14 +11,14 @@ describe('test Button component',() => {
         expect(element).toHaveClass('btn btn-default')
     })
     it('sould render the correct component based on different props', () => {
-        const wrapper = render(<Button btnType={ButtonType.Primary} size={ButtonSize.Large}>primary</Button>)
+        const wrapper = render(<Button btnType='primary' size='lg'>primary</Button>)
         const element = wrapper.getByText('primary')
         expect(element).toBeInTheDocument()
         expect(element.tagName).toEqual('BUTTON')
         expect(element).toHaveClass('btn btn-primary btn-lg')
     })
     it('sould render a link when btnType equals link and href is provided', () => {
-        const wrapper = render(<Button btnType={ButtonType.Link} href="www.buidu.com">link</Button>)
+        const wrapper = render(<Button btnType='link' href="www.buidu.com">link</Button>)
         const element = wrapper.getByText('link')
         expect(element).toBeInTheDocument()
         expect(element.tagName).toEqual('A')

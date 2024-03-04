@@ -119,3 +119,5 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props) => {
         </div>
     )
 }
+
+export default AutoComplete
